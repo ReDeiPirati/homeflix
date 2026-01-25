@@ -3,6 +3,12 @@
 Goal: a **LAN-only** web app with a clean, Netflix-like UI that streams your **locally owned** media.  
 Initial library: **The Big Bang Theory (S1–S10)**.
 
+## Current Status (living log)
+- Repo initialized with baseline docs and tooling notes (`README.md`, `AGENTS.md`, `.gitignore`).
+- Video normalization utility lives in `video-normalization/` (Bash + README).
+- First commit created and pushed to `origin/main`.
+- Next: choose the stack (Next.js + Node server) and define storage approach (JSON vs SQLite).
+
 **Iteration 1 focus (keep it simple):**
 - **No auth**
 - **No autoplay**
@@ -17,7 +23,7 @@ Initial library: **The Big Bang Theory (S1–S10)**.
 
 ## 0) Repo & baseline decisions
 
-- [ ] Create repo `homeflix`
+- [x] Create repo `homeflix`
 - [ ] Choose stack (Option A, single service):
   - [ ] Next.js (UI)
   - [ ] Node server (Express or Fastify) for API + streaming
@@ -35,11 +41,11 @@ Initial library: **The Big Bang Theory (S1–S10)**.
 
 ### Media format requirement (minimal)
 Because you need iPad support, standardize to:
-- [ ] **MP4 container**
-- [ ] **H.264 video**
-- [ ] **AAC audio**
+- [x] **MP4 container**
+- [x] **H.264 video**
+- [x] **AAC audio**
 
-(Conversion workflow is out-of-scope for Iteration 1, but you should normalize your AVI/MKV beforehand.)
+(Done: media normalized per agreed parameters.)
 
 ### Folder layout (recommended)
 Assets should be stored alongside the media under `MEDIA_ROOT`:
