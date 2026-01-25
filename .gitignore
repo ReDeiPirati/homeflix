@@ -1,0 +1,13 @@
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Env files
+.env
+
+# Generated video outputs
+*_normalized_mp4/
