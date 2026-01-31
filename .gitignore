@@ -11,3 +11,9 @@
 
 # Generated video outputs
 *_normalized_mp4/
+
+# Media files (videos, assets)
+media/
+
+# Local library config (use library.yml.example as template)
+app/data/library.yml
