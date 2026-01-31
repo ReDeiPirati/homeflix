@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-HomeFlix is a LAN-only video streaming platform for locally owned media. It provides a Netflix-like UI for browsing and playing videos stored on your local network. Currently in planning/scaffolding phase with the video normalization utility complete.
+HomeFlix is a LAN-only video streaming platform for locally owned media. It provides a Netflix-like UI for browsing and playing videos stored on your local network. Iteration 1 is complete with a working Next.js app.
 
 ## Current Commands
 
@@ -14,10 +14,18 @@ bash video-normalization/video_normalizer.sh /path/to/video/folder
 ```
 Converts all `.avi` files to normalized `.mp4` files (H.264/AAC) in a sibling directory named `{input}_normalized_mp4/`. Requires `ffmpeg` on PATH.
 
-### Planned Commands (Next.js - not yet scaffolded)
+### Asset Generation
 ```bash
+bash video-normalization/generate_assets.sh /path/to/media "Show Title"
+```
+Generates posters, backdrops, and episode thumbnails. Requires `ffmpeg` and ImageMagick (`magick`) on PATH.
+
+### Next.js App
+```bash
+cd app
 npm install          # Install dependencies
-npm run dev          # Development server
+npm run dev          # Development server (localhost only)
+npm run dev -- -H 0.0.0.0  # Development server (LAN accessible)
 npm run build        # Production build
 npm start            # Start production server
 docker compose up -d # Start via Docker
@@ -25,8 +33,9 @@ docker compose up -d # Start via Docker
 
 ## Architecture
 
-### Tech Stack (Planned)
-- **Backend/Frontend**: Next.js (single-process - API routes + pages, no separate Express server)
+### Tech Stack
+- **Backend/Frontend**: Next.js 14 (Pages Router, single-process - API routes + pages)
+- **Styling**: Tailwind CSS with Netflix-like dark theme
 - **Config**: YAML (`library.yml`) parsed once at startup, cached in memory, auto-reloaded via `fs.watchFile`
 - **Streaming**: HTTP Range requests for seeking support
 - **Deployment**: Docker + Docker Compose
@@ -35,6 +44,8 @@ docker compose up -d # Start via Docker
 - `plan.md` - Living development log with detailed implementation checklist and decisions
 - `AGENTS.md` - Repository guidelines and conventions
 - `video-normalization/video_normalizer.sh` - Bash utility for converting videos
+- `video-normalization/generate_assets.sh` - Generates posters and thumbnails
+- `app/data/library.yml.example` - Example library configuration
 
 ### Media Layout
 ```
@@ -57,7 +68,7 @@ All file access must use `validatePath()` utility:
 
 This prevents path traversal attacks. Used by `/api/stream`, `/api/asset`, and startup validation. Return `403` on failure.
 
-### Planned API Routes
+### API Routes
 - `GET /api/library` - Full config
 - `GET /api/collections` - List collections
 - `GET /api/collections/:id` - Collection details
@@ -66,7 +77,7 @@ This prevents path traversal attacks. Used by `/api/stream`, `/api/asset`, and s
 - `GET /api/asset?path=...` - Serve images
 - `GET /api/health` - Health check
 
-### Environment Variables (Planned)
+### Environment Variables
 ```bash
 MEDIA_ROOT=/media
 DATA_DIR=/data
