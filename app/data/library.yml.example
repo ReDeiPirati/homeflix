@@ -1,0 +1,42 @@
+# HomeFlix Library Configuration
+# Copy this file to library.yml and customize for your media library
+
+collections:
+  - id: big-bang-theory
+    title: The Big Bang Theory
+    type: series
+    path: The Big Bang Theory
+    poster: The Big Bang Theory/assets/poster.jpg
+    backdrop: The Big Bang Theory/assets/backdrop.jpg
+    description: A sitcom about four nerdy scientists and their interactions with the world.
+    seasons:
+      - number: 1
+        poster: The Big Bang Theory/assets/seasons/s01.jpg
+        episodes:
+          - id: tbbt-s01e01
+            title: Pilot
+            season: 1
+            episode: 1
+            filename: S01E01.mp4
+            thumbnail: The Big Bang Theory/assets/episodes/s01e01.jpg
+          - id: tbbt-s01e02
+            title: The Big Bran Hypothesis
+            season: 1
+            episode: 2
+            filename: S01E02.mp4
+            thumbnail: The Big Bang Theory/assets/episodes/s01e02.jpg
+
+# Media Layout Expected:
+# /media
+#   /The Big Bang Theory
+#     /assets
+#       poster.jpg
+#       backdrop.jpg
+#       /seasons
+#         s01.jpg
+#       /episodes
+#         s01e01.jpg
+#         s01e02.jpg
+#     /Season 01
+#       S01E01.mp4
+#       S01E02.mp4

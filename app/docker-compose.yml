@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  homeflix:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - MEDIA_ROOT=/media
+      - DATA_DIR=/data
+      - LIBRARY_CONFIG=/data/library.yml
+      - LAN_ONLY=true
+    volumes:
+      - ./data:/data:rw
+      - /path/to/your/media:/media:ro
+    restart: unless-stopped
