@@ -1,5 +1,6 @@
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import Layout from "@/components/Layout";
 import SeasonCard from "@/components/SeasonCard";
 import { getConfig } from "@/lib/config";
@@ -55,23 +56,43 @@ export default function CollectionPage({ collection, error }: CollectionPageProp
         </div>
       </div>
 
-      {/* Seasons Grid */}
+      {/* Content Section */}
       <div className="px-4 md:px-12 py-8">
-        <h2 className="text-xl md:text-2xl font-semibold mb-6">Seasons</h2>
-        {collection.seasons && collection.seasons.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {collection.seasons.map((season) => (
-              <SeasonCard
-                key={season.number}
-                collectionId={collection.id}
-                seasonNumber={season.number}
-                poster={season.poster}
-                episodeCount={season.episodes.length}
-              />
-            ))}
-          </div>
+        {collection.type === "movie" ? (
+          /* Movie: Play Button */
+          <Link
+            href={`/watch/movie/${collection.id}`}
+            className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-semibold rounded hover:bg-white/80 transition-colors"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Play
+          </Link>
         ) : (
-          <p className="text-netflix-lightGray">No seasons available.</p>
+          /* Series: Seasons Grid */
+          <>
+            <h2 className="text-xl md:text-2xl font-semibold mb-6">Seasons</h2>
+            {collection.seasons.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {collection.seasons.map((season) => (
+                  <SeasonCard
+                    key={season.number}
+                    collectionId={collection.id}
+                    seasonNumber={season.number}
+                    poster={season.poster}
+                    episodeCount={season.episodes.length}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-netflix-lightGray">No seasons available.</p>
+            )}
+          </>
         )}
       </div>
     </Layout>

@@ -2,14 +2,16 @@ import { useRef, useEffect } from "react";
 
 interface VideoPlayerProps {
   collectionId: string;
-  season: number;
-  episode: number;
+  season?: number;
+  episode?: number;
+  isMovie?: boolean;
 }
 
 export default function VideoPlayer({
   collectionId,
   season,
   episode,
+  isMovie = false,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -20,7 +22,9 @@ export default function VideoPlayer({
     }
   }, []);
 
-  const streamUrl = `/api/stream?collectionId=${encodeURIComponent(collectionId)}&season=${season}&ep=${episode}`;
+  const streamUrl = isMovie
+    ? `/api/stream?collectionId=${encodeURIComponent(collectionId)}`
+    : `/api/stream?collectionId=${encodeURIComponent(collectionId)}&season=${season}&ep=${episode}`;
 
   return (
     <div className="relative w-full h-full bg-black flex items-center justify-center">

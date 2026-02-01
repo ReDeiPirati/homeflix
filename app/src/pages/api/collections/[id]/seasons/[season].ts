@@ -35,7 +35,11 @@ export default function handler(
     return res.status(404).json({ error: "Not found", message: `Collection "${id}" not found` });
   }
 
-  const seasonData = collection.seasons?.find((s) => s.number === seasonNum);
+  if (collection.type !== "series") {
+    return res.status(400).json({ error: "Bad request", message: `"${id}" is a movie, not a series` });
+  }
+
+  const seasonData = collection.seasons.find((s) => s.number === seasonNum);
 
   if (!seasonData) {
     return res.status(404).json({ error: "Not found", message: `Season ${seasonNum} not found in "${id}"` });

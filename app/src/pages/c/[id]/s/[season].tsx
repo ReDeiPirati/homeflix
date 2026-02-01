@@ -97,7 +97,11 @@ export const getServerSideProps: GetServerSideProps<SeasonPageProps> = async (co
     return { props: { collection: null, season: null, error: `Collection "${id}" not found` } };
   }
 
-  const seasonData = collection.seasons?.find((s) => s.number === seasonNum);
+  if (collection.type !== "series") {
+    return { props: { collection: null, season: null, error: `"${id}" is a movie, not a series` } };
+  }
+
+  const seasonData = collection.seasons.find((s) => s.number === seasonNum);
 
   if (!seasonData) {
     return {

@@ -44,6 +44,6 @@ while IFS= read -r -d '' in; do
 
   echo "  -> ${out#${OUT_DIR}/}"
   echo
-done < <(find "${BTT_DIR}" -type f -iname "*.avi" -print0)
+done < <(find "${BTT_DIR}" -type f \( -iname "*.avi" -o -iname "*.mkv" \) -print0)
 
 echo "Done. Normalized files are in: ${OUT_DIR}"

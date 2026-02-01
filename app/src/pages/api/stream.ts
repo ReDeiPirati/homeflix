@@ -5,6 +5,15 @@ import { env } from "@/lib/env";
 import { validatePath } from "@/lib/validatePath";
 import { getConfig } from "@/lib/config";
 
+// Only allow MP4 files - other formats must be converted first
+// Use video-normalization/convert_movie.sh to convert MKV, AVI, etc. to MP4
+const ALLOWED_EXTENSIONS = [".mp4", ".m4v"];
+
+function isAllowedFormat(filename: string): boolean {
+  const ext = path.extname(filename).toLowerCase();
+  return ALLOWED_EXTENSIONS.includes(ext);
+}
+
 export const config = {
   api: {
     responseLimit: false,
@@ -19,12 +28,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const { collectionId, season, ep } = req.query;
 
-  if (
-    typeof collectionId !== "string" ||
-    typeof season !== "string" ||
-    typeof ep !== "string"
-  ) {
-    return res.status(400).json({ error: "Missing required parameters" });
+  if (typeof collectionId !== "string") {
+    return res.status(400).json({ error: "Missing collectionId parameter" });
   }
 
   const libraryConfig = getConfig();
@@ -37,26 +42,49 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).json({ error: "Collection not found" });
   }
 
-  const seasonNum = parseInt(season, 10);
-  const epNum = parseInt(ep, 10);
+  let relativePath: string;
+  let filename: string;
 
-  if (isNaN(seasonNum) || isNaN(epNum)) {
-    return res.status(400).json({ error: "Invalid season or episode number" });
+  if (collection.type === "movie") {
+    // Movie: {MEDIA_ROOT}/{collection.path}/{collection.filename}
+    relativePath = path.join(collection.path, collection.filename);
+    filename = collection.filename;
+  } else {
+    // Series: requires season and ep params
+    if (typeof season !== "string" || typeof ep !== "string") {
+      return res.status(400).json({ error: "Missing season or ep parameters for series" });
+    }
+
+    const seasonNum = parseInt(season, 10);
+    const epNum = parseInt(ep, 10);
+
+    if (isNaN(seasonNum) || isNaN(epNum)) {
+      return res.status(400).json({ error: "Invalid season or episode number" });
+    }
+
+    const seasonData = collection.seasons.find((s) => s.number === seasonNum);
+    if (!seasonData) {
+      return res.status(404).json({ error: "Season not found" });
+    }
+
+    const episode = seasonData.episodes.find((e) => e.episode === epNum);
+    if (!episode) {
+      return res.status(404).json({ error: "Episode not found" });
+    }
+
+    const seasonFolder = `Season ${String(seasonNum).padStart(2, "0")}`;
+    relativePath = path.join(collection.path, seasonFolder, episode.filename);
+    filename = episode.filename;
   }
 
-  const seasonData = collection.seasons?.find((s) => s.number === seasonNum);
-  if (!seasonData) {
-    return res.status(404).json({ error: "Season not found" });
+  // Only allow MP4 files for browser compatibility
+  if (!isAllowedFormat(filename)) {
+    const ext = path.extname(filename).toLowerCase();
+    return res.status(415).json({
+      error: "Unsupported format",
+      message: `File "${filename}" has unsupported format "${ext}". Only MP4 files are allowed. Use video-normalization/convert_movie.sh to convert.`,
+    });
   }
-
-  const episode = seasonData.episodes.find((e) => e.episode === epNum);
-  if (!episode) {
-    return res.status(404).json({ error: "Episode not found" });
-  }
-
-  // Build the full file path
-  const seasonFolder = `Season ${String(seasonNum).padStart(2, "0")}`;
-  const relativePath = path.join(collection.path, seasonFolder, episode.filename);
 
   const filePath = validatePath(relativePath, env.MEDIA_ROOT);
   if (!filePath) {

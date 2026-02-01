@@ -160,7 +160,20 @@ export const getServerSideProps: GetServerSideProps<WatchPageProps> = async (con
     };
   }
 
-  const seasonData = collection.seasons?.find((s) => s.number === seasonNum);
+  if (collection.type !== "series") {
+    return {
+      props: {
+        collection: null,
+        seasonNumber: 0,
+        episode: null,
+        nextEpisode: null,
+        prevEpisode: null,
+        error: `"${id}" is a movie, use /watch/movie/${id} instead`,
+      },
+    };
+  }
+
+  const seasonData = collection.seasons.find((s) => s.number === seasonNum);
 
   if (!seasonData) {
     return {

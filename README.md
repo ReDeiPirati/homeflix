@@ -6,11 +6,14 @@ A LAN-only video streaming platform with a Netflix-like UI for locally owned med
 
 - Netflix-like dark theme UI
 - Browse collections by series/movies
+- **First-class movie support** with flat folder structure
 - Season and episode navigation with thumbnails
 - HTML5 video player with seeking support (HTTP Range requests)
 - Config-driven catalog via YAML
 - Auto-reload config on file changes
 - Path traversal protection
+- **MP4-only streaming** (rejects incompatible formats)
+- **Video conversion scripts** for browser compatibility
 - Docker-ready deployment
 
 ## Quick Start
@@ -42,6 +45,7 @@ Copy `app/data/library.yml.example` to `app/data/library.yml` and configure your
 
 ```yaml
 collections:
+  # TV Series - has seasons with episodes
   - id: my-series
     title: My Series
     type: series
@@ -58,11 +62,21 @@ collections:
             episode: 1
             filename: S01E01.mp4
             thumbnail: My Series/assets/episodes/s01e01.jpg
+
+  # Movie - flat structure with filename
+  - id: my-movie
+    title: My Movie
+    type: movie
+    path: My Movie
+    filename: movie.mp4
+    poster: My Movie/assets/poster.jpg
+    backdrop: My Movie/assets/backdrop.jpg
+    description: A great movie.
 ```
 
 ## Media Layout
 
-Organize your media files following this structure:
+### TV Series
 
 ```
 /media
@@ -77,19 +91,38 @@ Organize your media files following this structure:
         s01e01.jpg         # Episode thumbnails (16:9)
         s01e02.jpg
     /Season 01
-      S01E01.mp4           # Video files (H.264/AAC)
+      S01E01.mp4           # Video files (H.264/AAC MP4 only)
       S01E02.mp4
     /Season 02
       S02E01.mp4
 ```
 
+### Movies
+
+```
+/media
+  /Movie Name
+    movie.mp4              # Video file directly in folder (no Season subfolder)
+    /assets
+      poster.jpg           # Main poster (2:3 aspect ratio)
+      backdrop.jpg         # Hero backdrop (16:9)
+```
+
 ### Video Format Requirements
 
-Videos must be in MP4 format with H.264 video and AAC audio for broad device compatibility. Use the included normalization utility to convert videos:
+**Important:** Videos must be in **MP4 format with H.264 video and AAC audio**. The stream API will reject other formats (MKV, AVI, etc.) with a 415 error.
 
+**Convert a single movie:**
+```bash
+bash video-normalization/convert_movie.sh /path/to/movie.mkv /path/to/output.mp4
+```
+
+**Batch convert a folder of videos (AVI/MKV to MP4):**
 ```bash
 bash video-normalization/video_normalizer.sh /path/to/videos
 ```
+
+The conversion scripts use ffmpeg to transcode to H.264 video + AAC stereo audio, which works in all browsers.
 
 ### Generating Thumbnails
 
@@ -144,13 +177,15 @@ homeflix/
 │   │   │   ├── api/
 │   │   │   │   ├── health.ts     # Health check endpoint
 │   │   │   │   ├── library.ts    # Full config endpoint
-│   │   │   │   ├── stream.ts     # Video streaming with Range support
+│   │   │   │   ├── stream.ts     # Video streaming (MP4 only, Range support)
 │   │   │   │   ├── asset.ts      # Image serving
 │   │   │   │   └── collections/  # Collection API routes
 │   │   │   ├── index.tsx         # Home page
-│   │   │   ├── c/[id].tsx        # Collection page
+│   │   │   ├── c/[id].tsx        # Collection page (Play button for movies)
 │   │   │   ├── c/[id]/s/[season].tsx  # Season page
-│   │   │   └── watch/[id]/[season]/[ep].tsx  # Video player
+│   │   │   └── watch/
+│   │   │       ├── [id]/[season]/[ep].tsx  # Episode player
+│   │   │       └── movie/[id].tsx          # Movie player
 │   │   ├── styles/
 │   │   │   └── globals.css       # Tailwind + dark theme
 │   │   └── types/
@@ -160,7 +195,9 @@ homeflix/
 │   ├── Dockerfile                # Multi-stage Docker build
 │   ├── docker-compose.yml        # Docker Compose config
 │   └── .dockerignore
-├── video-normalization/          # Video conversion utility
+├── video-normalization/          # Video conversion utilities
+│   ├── convert_movie.sh          # Convert single file to MP4
+│   └── video_normalizer.sh       # Batch convert folder
 ├── plan.md                       # Development checklist
 ├── CLAUDE.md                     # AI assistant instructions
 └── AGENTS.md                     # Repository guidelines
@@ -182,8 +219,11 @@ homeflix/
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/stream?collectionId=...&season=...&ep=...` | Video streaming with HTTP Range support |
+| `GET /api/stream?collectionId=...&season=...&ep=...` | Stream series episode (HTTP Range support) |
+| `GET /api/stream?collectionId=...` | Stream movie (no season/ep needed) |
 | `GET /api/asset?path=...` | Serve images (posters, thumbnails) |
+
+**Note:** The stream API only accepts MP4/M4V files. Other formats return 415 Unsupported Media Type.
 
 ### Health Check Response
 
@@ -230,8 +270,10 @@ npm run lint     # Run ESLint
 
 ### Videos not playing
 - Ensure videos are MP4 with H.264/AAC encoding
-- Check browser DevTools Network tab for 404 or 403 errors
+- Check browser DevTools Network tab for 404, 403, or **415** errors
+- **415 error** means the video format is not supported - use `convert_movie.sh` to convert
 - Verify file paths in `library.yml` match actual file locations
+- MKV files with AC3 audio won't play in browsers - convert to MP4 with AAC
 
 ### Path traversal errors (403)
 - All paths in `library.yml` must be relative to `MEDIA_ROOT`
