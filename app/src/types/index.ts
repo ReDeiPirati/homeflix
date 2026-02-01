@@ -14,16 +14,26 @@ export interface Season {
   poster?: string;
 }
 
-export interface Collection {
+interface CollectionBase {
   id: string;
   title: string;
-  type: "series" | "movie";
   path: string;
   poster?: string;
   backdrop?: string;
   description?: string;
-  seasons?: Season[];
 }
+
+export interface SeriesCollection extends CollectionBase {
+  type: "series";
+  seasons: Season[];
+}
+
+export interface MovieCollection extends CollectionBase {
+  type: "movie";
+  filename: string;
+}
+
+export type Collection = SeriesCollection | MovieCollection;
 
 export interface LibraryConfig {
   collections: Collection[];

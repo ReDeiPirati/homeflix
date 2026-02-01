@@ -5,12 +5,15 @@ interface CollectionCardProps {
   id: string;
   title: string;
   poster?: string;
+  type: "series" | "movie";
 }
 
-export default function CollectionCard({ id, title, poster }: CollectionCardProps) {
+export default function CollectionCard({ id, title, poster, type }: CollectionCardProps) {
+  const href = type === "movie" ? `/watch/movie/${id}` : `/c/${id}`;
+
   return (
     <Link
-      href={`/c/${id}`}
+      href={href}
       className="block relative group flex-shrink-0 w-[150px] md:w-[200px]"
     >
       <div className="relative aspect-[2/3] rounded overflow-hidden bg-netflix-darkGray">

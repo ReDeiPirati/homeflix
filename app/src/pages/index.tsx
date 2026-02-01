@@ -41,6 +41,7 @@ export default function Home({ collections, error }: HomeProps) {
                   id={collection.id}
                   title={collection.title}
                   poster={collection.poster}
+                  type={collection.type}
                 />
               ))}
             </div>
@@ -57,6 +58,7 @@ export default function Home({ collections, error }: HomeProps) {
                   id={collection.id}
                   title={collection.title}
                   poster={collection.poster}
+                  type={collection.type}
                 />
               ))}
             </div>

@@ -2,6 +2,7 @@
 # Copy this file to library.yml and customize for your media library
 
 collections:
+  # Series - has seasons with episodes
   - id: big-bang-theory
     title: The Big Bang Theory
     type: series
@@ -26,7 +27,19 @@ collections:
             filename: S01E02.mp4
             thumbnail: The Big Bang Theory/assets/episodes/s01e02.jpg
 
+  # Movie - flat structure with filename
+  - id: naked-gun
+    title: The Naked Gun
+    type: movie
+    path: The Naked Gun
+    filename: movie.mp4
+    poster: The Naked Gun/assets/poster.jpg
+    backdrop: The Naked Gun/assets/backdrop.jpg
+    description: A classic comedy film.
+
 # Media Layout Expected:
+#
+# Series:
 # /media
 #   /The Big Bang Theory
 #     /assets
@@ -40,3 +53,11 @@ collections:
 #     /Season 01
 #       S01E01.mp4
 #       S01E02.mp4
+#
+# Movies:
+# /media
+#   /The Naked Gun
+#     movie.mp4           # Direct in folder, no Season subfolder
+#     /assets
+#       poster.jpg
+#       backdrop.jpg

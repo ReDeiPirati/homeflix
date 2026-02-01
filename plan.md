@@ -7,7 +7,7 @@ Initial library: **The Big Bang Theory (S1–S10)**.
 
 ## Current Status
 
-**Iteration 1 complete and tested end-to-end.** The app is fully functional with real media.
+**Iteration 1 complete + Movie Support added.** The app supports both TV series and movies.
 
 **What's working:**
 - Next.js 14 with Pages Router, TypeScript, and Tailwind CSS
@@ -16,28 +16,43 @@ Initial library: **The Big Bang Theory (S1–S10)**.
 - All API routes implemented and tested
 - Netflix-like dark theme UI with responsive design
 - Docker configuration (Dockerfile + docker-compose.yml)
-- Real media configured (Big Bang Theory Season 1, 16 episodes)
+- Real media configured (Big Bang Theory Season 1 + The Naked Gun movie)
 - Asset generation script for posters/thumbnails
 - Video streaming with HTTP Range requests (seeking works)
+- **Movie support with flat folder structure (no Season subfolder)**
+- **Discriminated union types for Series vs Movie collections**
+- **MP4-only streaming validation (rejects MKV, AVI, etc.)**
+- **Video conversion script for browser compatibility**
 - Tested on local network from multiple devices
 
-**Media structure:**
+**Media structure (Series):**
 ```
 media/
-  assets/
-    poster.jpg
-    backdrop.jpg
-    season1/
+  Series Name/
+    assets/
       poster.jpg
-      episodes/
-        e01.jpg ... e17.jpg
-  Season 01/
-    [16 video files]
+      backdrop.jpg
+      season1/
+        poster.jpg
+        episodes/
+          e01.jpg ... e17.jpg
+    Season 01/
+      S01E01.mp4 ... S01E17.mp4
+```
+
+**Media structure (Movies):**
+```
+media/
+  Movie Name/
+    movie.mp4              # Direct in folder, no Season subfolder
+    assets/
+      poster.jpg
+      backdrop.jpg
 ```
 
 **Next steps:**
 1. Run via Docker with proper volume mounts
-2. Add more seasons/shows to library.yml
+2. Add more seasons/shows/movies to library.yml
 3. Test on iPad Safari and other target devices
 
 ---
@@ -54,6 +69,9 @@ This section records *why* each key choice was made.
 | **Path validation via resolve-and-assert** | All file paths are resolved with `path.resolve()` and then asserted to start with `MEDIA_ROOT`. | String-matching for `..` is bypassable (URL encoding, symlinks). Resolve-and-assert is the only robust approach. |
 | **Docker on macOS only (for now)** | Iteration 1 targets macOS as the Docker host. Media on Windows is accessed via SMB mount. | Docker volume mapping behaves differently on Windows vs macOS. Running Docker on one machine and mounting the other's media over the network is simpler. |
 | **App in subdirectory** | Next.js app lives in `/app` subdirectory, not repo root. | Avoids conflicts with existing repo files (README.md, plan.md, video-normalization/). Cleaner separation of concerns. |
+| **Discriminated union for Collection types** | `Collection = SeriesCollection | MovieCollection` with `type` field as discriminant. Series have `seasons`, movies have `filename`. | TypeScript can narrow types based on `type` field. Clean separation of concerns - no optional `seasons` on movies, no optional `filename` on series. |
+| **Movies use flat folder structure** | Movies stored as `{path}/{filename}` without Season subfolder. | Forcing movies into fake "Season 01" folders is awkward. Flat structure is more intuitive and matches how movies are typically organized. |
+| **MP4-only streaming** | Stream API rejects non-MP4 files with 415 error. | MKV with AC3 audio doesn't play in browsers. Forcing MP4 (H.264/AAC) ensures consistent playback. Conversion script provided for other formats. |
 
 ---
 
@@ -195,6 +213,35 @@ This section records *why* each key choice was made.
   - [x] Mobile-friendly layouts
   - [x] Breakpoints for tablet/desktop
 
+### 8) Movie Support
+- [x] Update TypeScript types for movies
+  - [x] `SeriesCollection` with `seasons: Season[]`
+  - [x] `MovieCollection` with `filename: string`
+  - [x] Discriminated union `Collection = SeriesCollection | MovieCollection`
+- [x] Update stream API for movies
+  - [x] Make `season` and `ep` params optional
+  - [x] Movie path: `{MEDIA_ROOT}/{path}/{filename}`
+  - [x] Add MP4-only validation (reject MKV, AVI, etc.)
+- [x] Add movie watch page (`/watch/movie/[id]`)
+  - [x] Simplified player without prev/next navigation
+  - [x] Back to home link
+- [x] Update VideoPlayer component
+  - [x] Add `isMovie` prop for correct stream URL
+- [x] Update collection detail page
+  - [x] Show Play button for movies (not seasons grid)
+- [x] Update CollectionCard
+  - [x] Accept `type` prop
+  - [x] Link movies directly to `/watch/movie/[id]`
+- [x] Update homepage
+  - [x] Pass `type` to CollectionCard
+- [x] Add video conversion script
+  - [x] `video-normalization/convert_movie.sh`
+  - [x] Converts any format to H.264 + AAC stereo
+- [x] Update video_normalizer.sh
+  - [x] Handle MKV files in addition to AVI
+- [x] Update example config with movie format
+- [x] Fix type narrowing in season/episode pages
+
 ---
 
 ## Testing Checklist (Manual)
@@ -259,7 +306,9 @@ homeflix/
 │   │   │   ├── c/
 │   │   │   │   ├── [id].tsx
 │   │   │   │   └── [id]/s/[season].tsx
-│   │   │   └── watch/[id]/[season]/[ep].tsx
+│   │   │   └── watch/
+│   │   │       ├── [id]/[season]/[ep].tsx
+│   │   │       └── movie/[id].tsx
 │   │   ├── styles/
 │   │   │   └── globals.css
 │   │   └── types/
@@ -276,7 +325,8 @@ homeflix/
 │   ├── tsconfig.json
 │   └── package.json
 ├── video-normalization/
-│   ├── video_normalizer.sh
+│   ├── video_normalizer.sh      # Batch convert AVI/MKV to MP4
+│   ├── convert_movie.sh         # Single file conversion
 │   ├── generate_assets.sh
 │   └── README.md
 ├── plan.md
