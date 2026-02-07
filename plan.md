@@ -51,9 +51,10 @@ media/
 ```
 
 **Next steps:**
-1. Run via Docker with proper volume mounts
+1. ✅ Run via Docker with proper volume mounts (completed 2026-02-07)
 2. Add more seasons/shows/movies to library.yml
-3. Test on iPad Safari and other target devices
+3. ✅ Test on iPad Safari and other target devices (confirmed working)
+4. Security testing (path traversal protection)
 
 ---
 
@@ -263,16 +264,20 @@ This section records *why* each key choice was made.
 ### Playback
 - [x] Video plays in browser
 - [x] Seeking works (check Network tab for 206 responses)
-- [ ] Works on iPad Safari
-- [ ] Works on Chrome desktop
+- [x] Works on iPad Safari (confirmed)
+- [x] Works on Chrome desktop (confirmed)
 
 ### LAN Access
 - [x] App accessible from other devices on network (192.168.x.x:3000)
 
 ### Docker
-- [ ] `docker compose build` succeeds
-- [ ] `docker compose up` starts the app
-- [ ] App accessible at http://localhost:3000
+- [x] `docker compose build` succeeds
+- [x] `docker compose up` starts the app
+- [x] App accessible at http://localhost:3000
+- [x] Volume mounts working (data r/w, media r/o)
+- [x] Config auto-reload via fs.watchFile works
+- [x] Streaming with Range requests works (206 responses)
+- [x] Asset serving works
 
 ---
 
