@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { parse } from "yaml";
 import { env } from "./env";
-import type { LibraryConfig, Collection } from "@/types";
+import type { LibraryConfig } from "@/types";
 
 let cachedConfig: LibraryConfig | null = null;
 let configError: string | null = null;
