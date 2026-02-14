@@ -23,7 +23,7 @@ Initial library: **The Big Bang Theory (S1–S10)**.
 - **Discriminated union types for Series vs Movie collections**
 - **MP4-only streaming validation (rejects MKV, AVI, etc.)**
 - **Video conversion script for browser compatibility**
-- Tested on local network from multiple devices
+- Tested on local network from multiple devices (iPad Safari, Chrome desktop, Fire TV Silk Browser)
 
 **Media structure (Series):**
 ```
@@ -53,8 +53,9 @@ media/
 **Next steps:**
 1. ✅ Run via Docker with proper volume mounts (completed 2026-02-07)
 2. Add more seasons/shows/movies to library.yml
-3. ✅ Test on iPad Safari and other target devices (confirmed working)
-4. Security testing (path traversal protection)
+3. ✅ Test on iPad Safari and other target devices (iPad Safari, Chrome desktop, Fire TV confirmed working)
+4. ✅ Security testing (path traversal protection) (completed 2026-02-14)
+5. ✅ Startup validation for config files (completed 2026-02-14)
 
 ---
 
@@ -113,7 +114,7 @@ This section records *why* each key choice was made.
 ### 2) Configuration
 - [x] Define `library.yml` schema
 - [x] Create example config (`data/library.yml.example`)
-- [ ] Add startup validation for referenced files
+- [x] Add startup validation for referenced files
 - [x] Create actual `library.yml` with real media paths
   - [x] Big Bang Theory Season 1 (16 episodes)
 
@@ -258,14 +259,17 @@ This section records *why* each key choice was made.
 - [x] `/api/stream` returns video with correct headers (206 Partial Content)
 
 ### Security
-- [ ] `curl 'http://localhost:3000/api/asset?path=../../../etc/passwd'` returns 403
-- [ ] URL-encoded traversal attempts are blocked
+- [x] `curl 'http://localhost:3000/api/asset?path=../../../etc/passwd'` returns 403
+- [x] URL-encoded traversal attempts are blocked
+- [x] Tested: basic, URL-encoded, double-encoded, absolute paths, mixed encoding, null bytes
+- [x] Stream API validated against collection ID traversal
 
 ### Playback
 - [x] Video plays in browser
 - [x] Seeking works (check Network tab for 206 responses)
 - [x] Works on iPad Safari (confirmed)
 - [x] Works on Chrome desktop (confirmed)
+- [x] Works on Fire TV via Silk Browser (confirmed 2026-02-14)
 
 ### LAN Access
 - [x] App accessible from other devices on network (192.168.x.x:3000)
